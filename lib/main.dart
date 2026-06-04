@@ -1,16 +1,31 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'screens/camera_screen.dart';
 import 'screens/cart_screen.dart';
+import 'services/esp_websocket_server.dart';
 import 'services/inference_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
+
+  try {
+    await EspWebSocketServer.instance.start();
+  } catch (e, st) {
+    developer.log(
+      'ESP WebSocket server failed to start: $e',
+      name: 'main',
+      error: e,
+      stackTrace: st,
+    );
+  }
+
   runApp(const FruitClassifierApp());
 }
 

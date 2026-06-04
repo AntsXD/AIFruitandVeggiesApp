@@ -1,17 +1,19 @@
-/// Central configuration — change [backendBaseUrl] for your LAN IP.
+/// App configuration.
 class AppConfig {
-  static const String backendBaseUrl = 'http://10.0.2.2:8000';
+  /// WebSocket port the ESP32 connects to (tablet must be on same WiFi).
+  static const int espWebSocketPort = 8765;
 
-  /// Cart session id for this tablet instance.
+  /// WebSocket path — full URL: `ws://<tablet-ip>:8765/esp`
+  static const String espWebSocketPath = '/esp';
+
+  /// Cart session id (used when step-2 local cart is wired up).
   static const String sessionId = 'tablet-1';
 
-  /// How often to poll weight while waiting on confirmed screen.
+  /// Legacy: external FastAPI base URL (cart/receipt still use this until step 2).
+  static const String backendBaseUrl = 'http://192.168.1.100:8000';
+
   static const Duration weightPollInterval = Duration(milliseconds: 500);
-
-  /// Weight readings must match within this tolerance (kg) to count as stable.
   static const double weightStableToleranceKg = 0.002;
-
-  /// Consecutive stable readings required before accepting weight.
   static const int weightStableReadingsRequired = 3;
 
   static const int inputSize = 224;

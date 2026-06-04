@@ -1,38 +1,20 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
-
 import '../config/app_config.dart';
+import 'weight_store.dart';
 
+/// Reads weight from the in-app [WeightStore] (fed by [EspWebSocketServer]).
 class WeightService {
-  WeightService({http.Client? client}) : _client = client ?? http.Client();
-
-  final http.Client _client;
-
   Future<double> fetchCurrentWeightKg() async {
-    final uri = Uri.parse('${AppConfig.backendBaseUrl}/weight/current');
-    final response = await _client.get(uri);
-    if (response.statusCode != 200) {
-      throw Exception('Weight fetch failed: ${response.statusCode}');
-    }
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
-    return (json['weight_kg'] as num).toDouble();
+    return WeightStore.instance.latestWeightKg;
   }
 
-  /// Poll until weight is non-zero and stable for [AppConfig.weightStableReadingsRequired].
+  /// Waits until weight is non-zero and stable for [AppConfig.weightStableReadingsRequired].
   Future<double> waitForStableWeight({
     void Function(double? latest)? onUpdate,
   }) async {
     final readings = <double>[];
     while (true) {
       await Future<void>.delayed(AppConfig.weightPollInterval);
-      double weight;
-      try {
-        weight = await fetchCurrentWeightKg();
-      } catch (_) {
-        onUpdate?.call(null);
-        continue;
-      }
+      final weight = await fetchCurrentWeightKg();
       onUpdate?.call(weight);
       if (weight <= 0) {
         readings.clear();

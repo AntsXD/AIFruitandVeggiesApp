@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uvccamera/uvccamera.dart';
 
+import '../config/app_config.dart';
 import '../services/inference_service.dart';
+import '../services/weight_store.dart';
 import '../services/uvc_camera_session.dart';
 import '../widgets/camera_overlay.dart';
 import 'result_screen.dart';
@@ -200,6 +202,20 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     super.dispose();
   }
 
+  Widget _statusChip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.black54,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white70, fontSize: 12),
+      ),
+    );
+  }
+
   String get _sourceLabel {
     return switch (_source) {
       _CameraSource.usb => 'USB camera',
@@ -220,20 +236,23 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
           else
             _buildPreview(),
           const CameraOverlay(),
-          if (_sourceLabel.isNotEmpty && !_initializing)
+          if (!_initializing)
             Positioned(
               top: 16,
               left: 16,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  _sourceLabel,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+              child: ListenableBuilder(
+                listenable: WeightStore.instance,
+                builder: (context, _) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_sourceLabel.isNotEmpty) _statusChip(_sourceLabel),
+                    const SizedBox(height: 6),
+                    _statusChip(
+                      WeightStore.instance.espConnected
+                          ? 'ESP connected :${AppConfig.espWebSocketPort}'
+                          : 'ESP waiting ws://*:${AppConfig.espWebSocketPort}${AppConfig.espWebSocketPath}',
+                    ),
+                  ],
                 ),
               ),
             ),

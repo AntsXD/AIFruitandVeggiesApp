@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 import 'dart:io';
 
 import '../config/app_config.dart';
+import 'receipt_service.dart';
 import 'weight_store.dart';
 
 /// Small WebSocket server on the tablet — ESP32 connects over WiFi and pushes weight.
@@ -48,11 +49,44 @@ class EspWebSocketServer {
 
   Future<void> _handleRequest(HttpRequest request) async {
     final path = request.uri.path;
+
+    // Add CORS headers for all requests
+    request.response.headers.add('Access-Control-Allow-Origin', '*');
+    request.response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    request.response.headers.add('Access-Control-Allow-Headers', '*');
+
+    if (request.method == 'OPTIONS') {
+      request.response
+        ..statusCode = HttpStatus.ok
+        ..close();
+      return;
+    }
+
     if (path == AppConfig.espWebSocketPath ||
         path == '${AppConfig.espWebSocketPath}/') {
       if (WebSocketTransformer.isUpgradeRequest(request)) {
         final socket = await WebSocketTransformer.upgrade(request);
         _onClientConnected(socket);
+        return;
+      }
+    }
+
+    if (path.startsWith('/receipt/')) {
+      final token = path.substring('/receipt/'.length);
+      final receipt = ReceiptService.getReceipt(token);
+      if (receipt != null) {
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType.json
+          ..write(jsonEncode(receipt))
+          ..close();
+        return;
+      } else {
+        request.response
+          ..statusCode = HttpStatus.notFound
+          ..headers.contentType = ContentType.json
+          ..write(jsonEncode({'error': 'Receipt not found'}))
+          ..close();
         return;
       }
     }

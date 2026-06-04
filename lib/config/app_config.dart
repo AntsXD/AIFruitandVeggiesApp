@@ -9,8 +9,7 @@ class AppConfig {
   /// Cart session id (used when step-2 local cart is wired up).
   static const String sessionId = 'tablet-1';
 
-  /// Legacy: external FastAPI base URL (cart/receipt still use this until step 2).
-  static const String backendBaseUrl = 'http://192.168.1.100:8000';
+
 
   static const Duration weightPollInterval = Duration(milliseconds: 500);
   static const double weightStableToleranceKg = 0.002;

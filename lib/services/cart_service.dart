@@ -1,25 +1,18 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
-
 import '../config/app_config.dart';
 
 class CartService {
-  CartService({http.Client? client}) : _client = client ?? http.Client();
+  CartService({Object? client});
 
-  final http.Client _client;
+  static final Map<String, List<CartLineItem>> _carts = {};
 
-  String get _sessionPath =>
-      '${AppConfig.backendBaseUrl}/cart/${AppConfig.sessionId}';
+  List<CartLineItem> get _items {
+    return _carts.putIfAbsent(AppConfig.sessionId, () => []);
+  }
 
   Future<CartSnapshot> fetchCart() async {
-    final response = await _client.get(Uri.parse(_sessionPath));
-    if (response.statusCode != 200) {
-      throw Exception('Cart fetch failed: ${response.statusCode}');
-    }
-    return CartSnapshot.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>,
-    );
+    final items = _items;
+    final subtotal = items.fold<double>(0.0, (sum, i) => sum + i.total);
+    return CartSnapshot(items: List.unmodifiable(items), subtotal: subtotal);
   }
 
   Future<CartSnapshot> addItem({
@@ -28,30 +21,17 @@ class CartService {
     required double unitPrice,
     required double total,
   }) async {
-    final uri = Uri.parse('$_sessionPath/add');
-    final response = await _client.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'label': label,
-        'weight_kg': weightKg,
-        'unit_price': unitPrice,
-        'total': total,
-      }),
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Cart add failed: ${response.statusCode}');
-    }
-    return CartSnapshot.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>,
-    );
+    _items.add(CartLineItem(
+      label: label,
+      weightKg: weightKg,
+      unitPrice: unitPrice,
+      total: total,
+    ));
+    return fetchCart();
   }
 
   Future<void> clearCart() async {
-    final response = await _client.delete(Uri.parse(_sessionPath));
-    if (response.statusCode != 200) {
-      throw Exception('Cart clear failed: ${response.statusCode}');
-    }
+    _items.clear();
   }
 }
 

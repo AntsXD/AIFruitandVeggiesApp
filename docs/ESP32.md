@@ -1,42 +1,74 @@
-# ESP32 scale firmware (not implemented)
+# ESP32 → tablet WebSocket (step 1)
 
-The tablet app does **not** read weight directly. An ESP32 on the load cell pushes readings to the local FastAPI backend; Flutter polls `GET /weight/current`.
+The tablet app runs a **small WebSocket server**. The ESP32 connects over WiFi and pushes weight JSON. No separate Python backend is required for weight.
 
-## Hardware
+## Network
 
-- ESP32 dev board
-- HX711 + load cell (same wiring as your scale build)
+- Tablet and ESP32 on the **same WiFi**.
+- Find the tablet’s IP (Android: Settings → WiFi → network details).
+- ESP connects to:
 
-## WiFi
+  `ws://<tablet-ip>:8765/esp`
 
-- Connect to the same LAN as the backend and tablet.
-- Reconnect automatically on disconnect.
-- Send a lightweight heartbeat `POST /weight/update` with the last known stable weight every **10 s** (configurable) so the backend knows the node is alive.
+  Example: `ws://192.168.1.42:8765/esp`
 
-## Stable reading logic (firmware)
+## Messages (ESP → tablet)
 
-1. Read raw HX711 samples; tare on boot (store offset in NVS optional).
-2. When the reading has been within a small band (e.g. ±2 g) for ~500 ms, treat it as **stable**.
-3. Only POST when the stable value changes by more than a debounce threshold, or on heartbeat.
-
-## API contract
-
-**Endpoint:** `POST http://<backend-ip>:8000/weight/update`
-
-**Body (JSON):**
+Send **text** frames with JSON:
 
 ```json
 { "weight_kg": 0.425 }
 ```
 
-**Response:** `{ "ok": true, "weight_kg": 0.425 }`
+Optional heartbeat (same shape is fine):
 
-The backend keeps a single in-memory `weight_kg`; the latest POST wins.
+```json
+{ "type": "heartbeat", "weight_kg": 0.425 }
+```
 
-## Flutter / tablet
+Only `weight_kg` is required.
 
-No serial/USB from the app. After the user confirms a label, `ConfirmedScreen` polls `GET /weight/current` until a stable non-zero weight is seen.
+## Responses (tablet → ESP)
 
-## Do not implement in this repo yet
+Success:
 
-Firmware lives in a separate Arduino/PlatformIO project. This document is the handoff spec for that work.
+```json
+{ "ok": true, "weight_kg": 0.425 }
+```
+
+On connect, welcome:
+
+```json
+{ "type": "welcome", "ok": true }
+```
+
+Error:
+
+```json
+{ "ok": false, "error": "..." }
+```
+
+## Firmware behaviour
+
+1. HX711 + stable-reading logic on the ESP (unchanged from before).
+2. On stable reading (or every N seconds), send one JSON message over the open WebSocket.
+3. Reconnect with backoff if the socket drops.
+4. Tablet app stores the **latest** `weight_kg` in memory; `ConfirmedScreen` waits for a stable non-zero value.
+
+## Arduino / ESP-IDF sketch outline
+
+Use `WebSocketsClient` (links2004) or ESP-IDF `esp_websocket_client`:
+
+- `begin("192.168.1.42", 8765, "/esp")` — use your tablet IP.
+- `sendTXT("{\"weight_kg\":0.425}")` when weight updates.
+
+## HTTP check (optional)
+
+`GET http://<tablet-ip>:8765/` returns a short plain-text hint that the server is up.
+
+## Hardware
+
+- ESP32 + HX711 + load cell
+- USB power for ESP; tablet on same LAN
+
+Firmware project stays separate from this repo.

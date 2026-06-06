@@ -16,7 +16,7 @@ class AppConfig {
   static const double weightStableToleranceKg = 0.002;
   static const int weightStableReadingsRequired = 3;
 
-  static const int inputSize = 224;
+  static const int inputSize = 128;
   static const String modelAsset = 'assets/model.tflite';
   static const String labelsAsset = 'assets/labels.txt';
 }

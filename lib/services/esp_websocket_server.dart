@@ -7,7 +7,6 @@ import '../config/app_config.dart';
 import 'receipt_service.dart';
 import 'weight_store.dart';
 
-/// Small WebSocket server on the tablet — ESP32 connects over WiFi and pushes weight.
 class EspWebSocketServer {
   EspWebSocketServer._();
   static final EspWebSocketServer instance = EspWebSocketServer._();
@@ -15,12 +14,13 @@ class EspWebSocketServer {
   HttpServer? _server;
   final Set<WebSocket> _clients = {};
   bool _running = false;
+  RawDatagramSocket? _udpSocket;
+  Timer? _discoveryTimer;
 
   bool get isRunning => _running;
   int get port => AppConfig.espWebSocketPort;
   int get connectedClients => _clients.length;
 
-  /// Starts listening on all interfaces (`0.0.0.0:[port]`).
   Future<void> start() async {
     if (_running) return;
     _server = await HttpServer.bind(
@@ -34,9 +34,35 @@ class EspWebSocketServer {
     );
 
     unawaited(_server!.forEach(_handleRequest));
+    _startDiscovery();
+  }
+
+  void _startDiscovery() async {
+    try {
+      _udpSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
+      final message = utf8.encode('JSR241 ${AppConfig.espWebSocketPort}');
+      _discoveryTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+        _udpSocket!.send(
+          message,
+          InternetAddress('192.168.4.1'),
+          AppConfig.espDiscoveryPort,
+        );
+      });
+      developer.log(
+        'UDP discovery: sending "JSR241 ${AppConfig.espWebSocketPort}" to '
+        '192.168.4.1:${AppConfig.espDiscoveryPort} every 2s',
+        name: 'EspWebSocketServer',
+      );
+    } catch (e) {
+      developer.log('UDP discovery failed: $e', name: 'EspWebSocketServer');
+    }
   }
 
   Future<void> stop() async {
+    _discoveryTimer?.cancel();
+    _discoveryTimer = null;
+    _udpSocket?.close();
+    _udpSocket = null;
     for (final client in _clients.toList()) {
       await client.close();
     }
@@ -50,7 +76,6 @@ class EspWebSocketServer {
   Future<void> _handleRequest(HttpRequest request) async {
     final path = request.uri.path;
 
-    // Add CORS headers for all requests
     request.response.headers.add('Access-Control-Allow-Origin', '*');
     request.response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS');
     request.response.headers.add('Access-Control-Allow-Headers', '*');
@@ -120,8 +145,6 @@ class EspWebSocketServer {
       onError: (_) => _onClientDisconnected(socket),
       cancelOnError: true,
     );
-
-    socket.add(jsonEncode({'type': 'welcome', 'ok': true}));
   }
 
   void _onClientDisconnected(WebSocket socket) {
@@ -137,31 +160,15 @@ class EspWebSocketServer {
     try {
       final text = message is String ? message : utf8.decode(message as List<int>);
       final json = jsonDecode(text);
-      if (json is! Map<String, dynamic>) {
-        _sendError(socket, 'Expected JSON object');
-        return;
-      }
+      if (json is! Map<String, dynamic>) return;
 
-      final weight = json['weight_kg'];
-      if (weight == null) {
-        _sendError(socket, 'Missing weight_kg');
-        return;
-      }
+      final kg = json['kg'];
+      if (kg == null) return;
 
-      final weightKg = (weight as num).toDouble();
+      final weightKg = (kg as num).toDouble();
       WeightStore.instance.updateWeight(weightKg);
-
-      socket.add(jsonEncode({
-        'ok': true,
-        'weight_kg': weightKg,
-      }));
     } catch (e) {
       developer.log('Bad message: $e', name: 'EspWebSocketServer');
-      _sendError(socket, 'Invalid message: $e');
     }
-  }
-
-  void _sendError(WebSocket socket, String detail) {
-    socket.add(jsonEncode({'ok': false, 'error': detail}));
   }
 }

@@ -4,7 +4,10 @@ class AppConfig {
   static const int espWebSocketPort = 8765;
 
   /// WebSocket path — full URL: `ws://<tablet-ip>:8765/esp`
-  static const String espWebSocketPath = '/esp';
+  static const String espWebSocketPath = '/ws';
+
+  static const int espDiscoveryPort = 49500;
+  static const String espSsid = 'ScaleEasy';
 
   /// Cart session id (used when step-2 local cart is wired up).
   static const String sessionId = 'tablet-1';

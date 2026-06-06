@@ -1,7 +1,7 @@
 import '../config/app_config.dart';
 
 class CartService {
-  CartService({Object? client});
+  CartService();
 
   static final Map<String, List<CartLineItem>> _carts = {};
 

@@ -5,7 +5,7 @@ import 'package:fruit_classifier/services/receipt_service.dart';
 
 void main() {
   group('PriceService Tests', () {
-    final priceService = PriceService();
+    final priceService = const PriceService();
 
     test('fetches known item prices correctly', () async {
       final applePrice = await priceService.fetchPrice('Apple');

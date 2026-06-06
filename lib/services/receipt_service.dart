@@ -5,7 +5,7 @@ import '../config/app_config.dart';
 import 'cart_service.dart';
 
 class ReceiptService {
-  ReceiptService({Object? client});
+  ReceiptService();
 
   // Store receipts in-memory
   static final Map<String, Map<String, dynamic>> _receiptStore = {};

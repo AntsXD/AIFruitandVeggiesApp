@@ -43,15 +43,15 @@ class InferenceService {
     final output = List.generate(1, (_) => List.filled(outputCount, 0.0));
     _interpreter!.run(input, output);
     final scores = output.first;
-    final indexed = List.generate(scores.length, (i) => i);
-    indexed.sort((a, b) => scores[b].compareTo(scores[a]));
-    return indexed
-        .map(
-          (i) => Prediction(
-            label: _labels[i],
-            confidence: scores[i].toDouble(),
-          ),
-        )
+    final merged = <String, double>{};
+    for (var i = 0; i < scores.length; i++) {
+      final label = _labels[i];
+      merged[label] = (merged[label] ?? 0) + scores[i];
+    }
+    final entries =
+        merged.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    return entries
+        .map((e) => Prediction(label: e.key, confidence: e.value))
         .toList();
   }
 

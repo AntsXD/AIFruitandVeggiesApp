@@ -63,6 +63,12 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
         _lineTotal = total;
         _loading = false;
       });
+    } on WeightTimeoutException {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Timed out waiting for stable weight.\nMake sure the scale is connected and place the item on it.';
+        _loading = false;
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() {

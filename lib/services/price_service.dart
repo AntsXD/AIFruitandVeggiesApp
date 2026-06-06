@@ -1,5 +1,5 @@
 class PriceService {
-  PriceService({Object? client});
+  const PriceService();
 
   static const double _defaultPrice = 2.99;
   static const Map<String, double> _pricesPerKg = {

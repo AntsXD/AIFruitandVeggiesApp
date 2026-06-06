@@ -12,6 +12,7 @@ class AppConfig {
 
 
   static const Duration weightPollInterval = Duration(milliseconds: 500);
+  static const Duration weightTimeout = Duration(seconds: 60);
   static const double weightStableToleranceKg = 0.002;
   static const int weightStableReadingsRequired = 3;
 

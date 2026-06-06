@@ -1,18 +1,31 @@
+import 'dart:async';
+
 import '../config/app_config.dart';
 import 'weight_store.dart';
 
-/// Reads weight from the in-app [WeightStore] (fed by [EspWebSocketServer]).
+class WeightTimeoutException implements Exception {
+  final String message;
+  WeightTimeoutException([this.message = 'Timed out waiting for stable weight']);
+
+  @override
+  String toString() => 'WeightTimeoutException: $message';
+}
+
 class WeightService {
   Future<double> fetchCurrentWeightKg() async {
     return WeightStore.instance.latestWeightKg;
   }
 
-  /// Waits until weight is non-zero and stable for [AppConfig.weightStableReadingsRequired].
   Future<double> waitForStableWeight({
     void Function(double? latest)? onUpdate,
+    Duration? timeout,
   }) async {
+    final deadline = DateTime.now().add(timeout ?? AppConfig.weightTimeout);
     final readings = <double>[];
     while (true) {
+      if (DateTime.now().isAfter(deadline)) {
+        throw WeightTimeoutException();
+      }
       await Future<void>.delayed(AppConfig.weightPollInterval);
       final weight = await fetchCurrentWeightKg();
       onUpdate?.call(weight);

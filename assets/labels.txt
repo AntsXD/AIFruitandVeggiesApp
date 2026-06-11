@@ -1,203 +1,101 @@
 Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
-Apple
+Apple Braeburn
+Apple Crimson Snow
+Apple Golden
+Apple Granny Smith
+Apple Pink Lady
+Apple Red
+Apple Red Delicious
+Apple Red Yellow
 Avocado
-Avocado
-Avocado
-Avocado
-Avocado
+Avocado Black
+Avocado Green
 Banana
-Banana
-Banana
-Banana
-Banana
+Banana Lady Finger
+Banana Red
 Beetroot
-Cabbage
-Cabbage
-Cantaloupe
-Cantaloupe
+Cabbage red
+Cabbage white
 Cantaloupe
 Carrot
 Cauliflower
 Celery
 Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
-Cherry
+Cherry Rainier
+Cherry Sour
+Cherry Wax
+Cherry Wax Black
+Cherry Wax Red
+Cherry Wax Yellow
 Chestnut
 Clementine
 Corn
-Corn
-Cucumber
-Cucumber
-Cucumber
-Cucumber
-Cucumber
-Cucumber
-Cucumber
-Cucumber
-Cucumber
-Cucumber
-Cucumber
+Corn Husk
 Cucumber
 Dates
-Dates
 Eggplant
-Eggplant
+Eggplant long
 Ginger
-Ginger
+Ginger Root
 Grape
-Grape
-Grape
-Grape
-Grape
-Grape
-Grape
-Grape
-Grapefruit
-Grapefruit
+Grape Blue
+Grape pink
+Grape Pink
+Grape White
+Grapefruit Pink
+Grapefruit White
 Guava
 Kiwi
 Lemon
-Lemon
+Lemon Meyer
 Limes
 Mandarine
 Mango
-Mango
+Mango Red
 Mangostan
-Nut
+Nut Pecan
 Onion
-Onion
-Onion
-Onion
-Onion
-Onion
+Onion Red
+Onion White
+orange
 Orange
-Orange
-Orange
-Orange
-Orange
+Orange peeled
 Peach
-Peach
-Peach
-Peach
-Peach
-Peach
-Peach
+Peach Flat
 Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
-Pear
+Pear Abate
+Pear Forelle
+Pear Kaiser
+Pear Monster
+Pear Red
+Pear Stone
+Pear Williams
 Pepino
 Pepper
-Pepper
-Pepper
-Pepper
-Pepper
-Pepper
-Pepper
-Pepper
-Pepper
-Pepper
-Pepper
+Pepper Green
+Pepper Orange
+Pepper Red
+Pepper Yellow
 Pineapple
-Pineapple
-Pitahaya
-Plum
-Plum
-Plum
-Plum
+Pineapple Mini
+Pitahaya Red
 Plum
 Pomegranate
-Potato
-Potato
-Potato
-Potato
-Raspberry
-Raspberry
-Raspberry
-Raspberry
-Raspberry
+Potato Red
+Potato Sweet
+Potato White
 Raspberry
 Strawberry
-Strawberry
-Strawberry
-Strawberry
+Strawberry Wedge
 Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
-Tomato
+Tomato Cherry Maroon
+Tomato Cherry Orange
+Tomato Cherry Red
+Tomato Cherry Yellow
+Tomato Heart
+Tomato Maroon
+Tomato Yellow
 Watermelon
 Zucchini
-Zucchini
-Zucchini
+Zucchini dark
+Zucchini Green

@@ -80,7 +80,6 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       return;
     }
 
-    // USB camera plugged in but still waiting for permission / connection
     if (_uvcSession.device != null && _uvcSession.isAttached) {
       setState(() {
         _source = _CameraSource.usb;
@@ -157,10 +156,15 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       final predictions =
           await widget.inferenceService.predict(Uint8List.fromList(bytes));
       if (!mounted) return;
+
+      final filtered = predictions
+          .where((p) => p.confidence >= AppConfig.confidenceThreshold)
+          .toList();
+
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => ResultScreen(
-            predictions: predictions,
+            predictions: filtered,
             onRetake: () => Navigator.of(context).pop(),
           ),
         ),

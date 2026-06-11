@@ -22,4 +22,7 @@ class AppConfig {
   static const int inputSize = 128;
   static const String modelAsset = 'assets/model.tflite';
   static const String labelsAsset = 'assets/labels.txt';
+
+  static const double confidenceThreshold = 0.3;
+  static const int inferenceIntervalMs = 300;
 }

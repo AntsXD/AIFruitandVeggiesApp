@@ -34,6 +34,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   bool _initializing = true;
   bool _capturing = false;
   String? _error;
+  String? _usbFallbackReason;
 
   CameraController? _builtinController;
   late final UvcCameraSession _uvcSession;
@@ -63,6 +64,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       _initializing = true;
       _error = null;
       _source = _CameraSource.none;
+      _usbFallbackReason = null;
     });
 
     await _builtinController?.dispose();
@@ -89,6 +91,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       return;
     }
 
+    // USB camera unavailable — surface why before falling back to built-in.
+    _usbFallbackReason = _uvcSession.lastError;
     await _initBuiltinCamera();
   }
 
@@ -220,6 +224,31 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     );
   }
 
+  Widget _usbReasonChip(String text) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 280),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.usb_off, color: Colors.white, size: 16),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String get _sourceLabel {
     return switch (_source) {
       _CameraSource.usb => 'USB camera',
@@ -250,6 +279,11 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (_sourceLabel.isNotEmpty) _statusChip(_sourceLabel),
+                    if (_source == _CameraSource.builtin &&
+                        _usbFallbackReason != null) ...[
+                      const SizedBox(height: 6),
+                      _usbReasonChip(_usbFallbackReason!),
+                    ],
                     const SizedBox(height: 6),
                     _statusChip(
                       WeightStore.instance.espConnected

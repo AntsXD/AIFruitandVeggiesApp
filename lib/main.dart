@@ -39,6 +39,7 @@ class FruitClassifierApp extends StatefulWidget {
 
 class _FruitClassifierAppState extends State<FruitClassifierApp> {
   final InferenceService _inferenceService = InferenceService();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void dispose() {
@@ -47,7 +48,7 @@ class _FruitClassifierAppState extends State<FruitClassifierApp> {
   }
 
   void _openCart() {
-    Navigator.of(context).push(
+    _navigatorKey.currentState?.push(
       MaterialPageRoute<void>(builder: (_) => const CartScreen()),
     );
   }
@@ -56,6 +57,7 @@ class _FruitClassifierAppState extends State<FruitClassifierApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Produce Classifier',
+      navigatorKey: _navigatorKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,

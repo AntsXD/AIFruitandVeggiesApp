@@ -133,7 +133,7 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
                     Text(
                       _weightKg == null
                           ? 'Waiting for stable weight on scale…'
-                          : 'Stabilizing weight (${_weightKg!.toStringAsFixed(3)} kg)…',
+                          : 'Stabilizing weight (${_weightKg!.toStringAsFixed(1)} kg)…',
                     ),
                   ],
                 ),

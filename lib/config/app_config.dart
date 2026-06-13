@@ -1,7 +1,7 @@
 /// App configuration.
 class AppConfig {
   /// WebSocket port the ESP32 connects to (tablet must be on same WiFi).
-  static const int espWebSocketPort = 8765;
+  static const int espWebSocketPort = 8080;
 
   /// WebSocket path — full URL: `ws://<tablet-ip>:8765/esp`
   static const String espWebSocketPath = '/ws';

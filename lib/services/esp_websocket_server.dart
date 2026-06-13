@@ -23,15 +23,21 @@ class EspWebSocketServer {
 
   Future<void> start() async {
     if (_running) return;
-    _server = await HttpServer.bind(
-      InternetAddress.anyIPv4,
-      AppConfig.espWebSocketPort,
-    );
-    _running = true;
-    developer.log(
-      'ESP WebSocket server on port $port (path ${AppConfig.espWebSocketPath})',
-      name: 'EspWebSocketServer',
-    );
+    try {
+      _server = await HttpServer.bind(
+        InternetAddress.anyIPv4,
+        AppConfig.espWebSocketPort,
+      );
+      _running = true;
+      developer.log(
+        'ESP WebSocket server on port $port (path ${AppConfig.espWebSocketPath})',
+        name: 'EspWebSocketServer',
+      );
+    } catch (e, st) {
+      developer.log('Failed to bind WebSocket server on port $port: $e',
+          name: 'EspWebSocketServer', error: e, stackTrace: st);
+      return;
+    }
 
     unawaited(_server!.forEach(_handleRequest));
     _startDiscovery();

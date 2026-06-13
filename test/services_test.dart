@@ -12,9 +12,9 @@ void main() {
       expect(applePrice.label, equals('Apple'));
       expect(applePrice.pricePerKg, equals(3.49));
 
-      final avocadoPrice = await priceService.fetchPrice('Avocado');
-      expect(avocadoPrice.label, equals('Avocado'));
-      expect(avocadoPrice.pricePerKg, equals(4.99));
+      final cucumberPrice = await priceService.fetchPrice('Cucumber');
+      expect(cucumberPrice.label, equals('Cucumber'));
+      expect(cucumberPrice.pricePerKg, equals(1.99));
     });
 
     test('returns default price for unknown items', () async {

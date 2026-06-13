@@ -126,7 +126,8 @@ class _CartScreenState extends State<CartScreen> {
                 title: Text(item.label, style: const TextStyle(fontSize: 18)),
                 subtitle: Text(
                   '${item.weightKg.toStringAsFixed(3)} kg @ '
-                  '\$${item.unitPrice.toStringAsFixed(2)}/kg',
+                  '\$${item.unitPrice.toStringAsFixed(2)}/kg'
+                  '${item.calories > 0 ? ' · ${item.calories.round()} kcal' : ''}',
                 ),
                 trailing: Text(
                   '\$${item.total.toStringAsFixed(2)}',
@@ -153,6 +154,11 @@ class _CartScreenState extends State<CartScreen> {
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Calories: ${cart.totalCalories.round()} kcal',
+                  style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 24),
                 FilledButton(

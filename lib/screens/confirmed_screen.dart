@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/calorie_service.dart';
 import '../services/cart_service.dart';
 import '../services/price_service.dart';
 import '../services/weight_service.dart';
@@ -10,12 +11,14 @@ class ConfirmedScreen extends StatefulWidget {
     required this.label,
     this.weightService,
     this.priceService,
+    this.calorieService,
     this.cartService,
   });
 
   final String label;
   final WeightService? weightService;
   final PriceService? priceService;
+  final CalorieService? calorieService;
   final CartService? cartService;
 
   @override
@@ -25,6 +28,7 @@ class ConfirmedScreen extends StatefulWidget {
 class _ConfirmedScreenState extends State<ConfirmedScreen> {
   late final WeightService _weightService;
   late final PriceService _priceService;
+  late final CalorieService _calorieService;
   late final CartService _cartService;
 
   bool _loading = true;
@@ -32,6 +36,7 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
   double? _weightKg;
   double? _unitPrice;
   double? _lineTotal;
+  double? _calories;
   bool _adding = false;
 
   @override
@@ -39,6 +44,7 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
     super.initState();
     _weightService = widget.weightService ?? WeightService();
     _priceService = widget.priceService ?? PriceService();
+    _calorieService = widget.calorieService ?? const CalorieService();
     _cartService = widget.cartService ?? CartService();
     _load();
   }
@@ -50,6 +56,7 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
     });
     try {
       final price = await _priceService.fetchPrice(widget.label);
+      final calInfo = await _calorieService.fetchCalories(widget.label);
       final weight = await _weightService.waitForStableWeight(
         onUpdate: (w) {
           if (mounted) setState(() => _weightKg = w);
@@ -61,6 +68,7 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
         _weightKg = weight;
         _unitPrice = price.pricePerKg;
         _lineTotal = total;
+        _calories = weight * 10 * calInfo.kcalPer100g;
         _loading = false;
       });
     } on WeightTimeoutException {
@@ -82,6 +90,7 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
     final weight = _weightKg;
     final unit = _unitPrice;
     final total = _lineTotal;
+    final calories = _calories;
     if (weight == null || unit == null || total == null) return;
     setState(() => _adding = true);
     try {
@@ -90,6 +99,7 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
         weightKg: weight,
         unitPrice: unit,
         total: total,
+        calories: calories ?? 0,
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -155,6 +165,7 @@ class _ConfirmedScreenState extends State<ConfirmedScreen> {
         ),
         const SizedBox(height: 32),
         _row('Weight', '${_weightKg!.toStringAsFixed(3)} kg'),
+        _row('Calories', '~${_calories!.round()} kcal'),
         _row('Unit price', '\$${_unitPrice!.toStringAsFixed(2)} / kg'),
         _row('Line total', '\$${_lineTotal!.toStringAsFixed(2)}',
             bold: true),

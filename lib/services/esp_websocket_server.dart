@@ -99,14 +99,7 @@ class EspWebSocketServer {
     if (path.startsWith('/receipt/')) {
       final token = path.substring('/receipt/'.length);
       final receipt = ReceiptService.getReceipt(token);
-      if (receipt != null) {
-        request.response
-          ..statusCode = HttpStatus.ok
-          ..headers.contentType = ContentType.json
-          ..write(jsonEncode(receipt))
-          ..close();
-        return;
-      } else {
+      if (receipt == null) {
         request.response
           ..statusCode = HttpStatus.notFound
           ..headers.contentType = ContentType.json
@@ -114,6 +107,21 @@ class EspWebSocketServer {
           ..close();
         return;
       }
+      final accept = request.headers.value('accept') ?? '';
+      if (accept.contains('json')) {
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType.json
+          ..write(jsonEncode(receipt))
+          ..close();
+      } else {
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType.html
+          ..write(ReceiptService.buildReceiptHtml(receipt))
+          ..close();
+      }
+      return;
     }
 
     if (path == '/' || path.isEmpty) {
